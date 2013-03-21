@@ -59,6 +59,16 @@ Room outside_house "Outside of Abigail's house"
        ],
 ;
 
+Object "front door"
+  with name 'front' 'door',
+  description "The front door is unlocked. You could easily go inside.",
+  found_in outside_house,
+  before [; Open:
+    PlayerTo(inside_house);
+    return true;
+  ],
+  has scenery;
+
 Room inside_house "Inside Abigail's house"
   with description [;
          if (self hasnt visited)
@@ -76,6 +86,12 @@ Room inside_house "Inside Abigail's house"
        out_to outside_house,
        cant_go "It would be rude to roam around her house when she's not here!",
 ;
+
+Object "carpet"
+  with name 'carpet',
+  description "The carpet is covered in dog fur.",
+  found_in inside_house,
+  has scenery;
 
 Class DogType
     with daemon [;
