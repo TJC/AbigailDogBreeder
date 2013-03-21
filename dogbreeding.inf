@@ -10,7 +10,7 @@ Include "VerbLib";
 Verb   'mate' 'breed'
     * noun -> SingleMating
     * 'with' noun -> SingleMating
-    * noun 'with' noun -> DualMating;
+    * noun 'with'/'and' noun -> DualMating;
 
 [ SingleMatingSub;
     if (noun == player)
@@ -116,10 +116,15 @@ Class MaleDog(99)
 
 Class FemaleDog(99)
   class DogType
-  with description "You're pretty sure this is a female dog, or bitch.",
-       short_name "bitch",
-       plural "bitches",
-       name 'female' 'dog' 'dogs//p' 'bitch' 'bitches//p',
+  with
+       description [; print_ret (The) self, " is a female dog, or bitch."; ],
+       short_name [;
+         print (address) self.&name-->0, " ", (address) self.&name-->1, " bitch";
+         rtrue;
+       ],
+       !short_name "bitch",
+       !plural "bitches",
+       name '.colourlong' '.breedtypelong' 'female' 'dog' 'dogs//p' 'bitch' 'bitches//p',
   has ;
 
 MaleDog male_dog inside_house;
@@ -127,27 +132,37 @@ MaleDog male_dog inside_house;
 FemaleDog female_dog inside_house;
 
 Class Puppy(99)
-  with description "This is a cute puppy!",
-       short_name "puppy",
-       plural "puppies",
-       name 'puppy' 'puppies//p',
+  with 
+       description [; print_ret (The) self, " is very cute."; ],
+       short_name [;
+         print (address) self.&name-->0, " ", (address) self.&name-->1, " puppy";
+         rtrue;
+       ],
+       ! plural "puppies",
+       name '.colourlong' '.breedtypelong' 'puppy' 'puppies//p',
        age 0,
        create [;
+         self.&name-->0 = random('grey', 'tuxedo', 'brown', 'red', 'white',
+             'black', 'mottled', 'chocolate', 'liver', 'blue', 'lilac');
+         self.&name-->1 = random('papillion', 'border-collie', 'dalmation',
+            'cocker-spaniel');
          move self to location;
          score++;
-         "A puppy is born!";
+         "", (a) self, " has been born!";
        ],
-       each_turn [;
+       each_turn [tmp;
          self.age++;
          if (self.age > 3) {
            print "A puppy has grown up to be an adult dog!";
            score++;
            Puppy.destroy(self);
            if (random(10) < 5) {
-             MaleDog.create();
+             tmp = MaleDog.create();
            }
            else {
-             FemaleDog.create();
+             tmp = FemaleDog.create();
+             tmp.&name-->0 = self.&name-->0;
+             tmp.&name-->1 = self.&name-->1;
            }
          }
        ],
