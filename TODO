@@ -1,0 +1,15 @@
+TODO
+----
+
+Add scenery, for eg:
+ * carpet
+ * dog toys
+ * house door
+ * door to house
+
+Add extra verbs to allow people to "enter house" instead of just "enter".
+Perhaps something like "open door" too?
+
+Implement code for puppies to grow up into adults.
+ * Needs to create a new DogType of random gender after a period of time
+

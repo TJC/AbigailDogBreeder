@@ -1,0 +1,116 @@
+!=====
+Constant Story "Abigail's Dog Breeding Game^";
+Constant Headline
+    "Breed dogs for Abigail^";
+Constant MAX_SCORE = 100;
+
+Include "Parser";
+Include "VerbLib";
+
+Verb   'mate' 'breed'
+    * noun -> SingleMating
+    * 'with' noun -> SingleMating
+    * noun 'with' noun -> DualMating;
+
+[ SingleMatingSub;
+    if (noun == player)
+        print_ret "You are not a hermaphrodite.";
+    if (noun has animate)
+        print_ret (The) noun, " doesn't want to mate with you.";
+    print_ret (The) noun, " is not able to mate.";
+];
+
+[ DualMatingSub obj;
+    if (noun == second)
+      print_ret "It is not hermaphroditic.";
+    if (noun == player || second == player)
+        print_ret "Please don't try and mate with anything yourself!";
+    if ( (noun == male_dog && second == male_dog)
+        || (noun == female_dog && second == female_dog)
+    ) {
+        print_ret "The gay dogs mate, but produce no offspring.";
+    }
+    if (
+        (noun == male_dog && second == female_dog)
+        ||
+        (second == male_dog && noun == female_dog)
+    ) {
+        print "The two dogs mate, and produce offspring.^";
+        obj = Puppy.create();
+        ! Use Puppy.destroy(x) to remove!
+        return true;
+    }
+    print_ret (The) noun, " is not able to mate.";
+];
+
+Class  Room
+  has  light;
+
+Room outside_house "Outside of Abigail's house"
+  with description
+       "You are standing outside Abigail's house. The sound of yapping dogs can be
+       heard coming from within.",
+       in_to inside_house,
+       cant_go "Don't leave! Why not go inside?",
+       name 'house',
+       before [; Enter:
+         PlayerTo(inside_house);
+         return true;
+       ],
+;
+
+Room inside_house "Inside Abigail's house"
+  with description [;
+         if (self hasnt visited)
+             print "You let yourself into Abigail's house. I hope she's OK with that.^";
+         print "It smells a bit like dogs in here, and there is a lot of fur on the
+                carpet. I think dog breeding might go on in here!^";
+         if (self.first_time_entered == false) {
+           print "The dogs look at you expectantly.^";
+           self.first_time_entered = true;
+           StartDaemon(female_dog);
+           StartDaemon(male_dog);
+         }
+       ],
+       first_time_entered false,
+       out_to outside_house,
+       cant_go "It would be rude to roam around her house when she's not here!",
+;
+
+Class DogType
+    with daemon [;
+      switch (random(5)) {
+        1:  "One of the dogs woofs at you.";
+        2:  "One of the dogs wags its tail.";
+        default: "";
+      }
+    ],
+    has animate;
+
+DogType male_dog "male dog" inside_house
+  with description "You're pretty sure this is a male dog.",
+       name 'male' 'dog',
+  has ;
+
+DogType female_dog "female dog" inside_house
+  with description "You're pretty sure this is a female dog, or bitch.",
+       name 'female' 'dog' 'bitch',
+  has ;
+
+Class Puppy(99)
+  with description "This is a cute puppy!",
+       short_name "puppy",
+       plural "puppies",
+       name 'puppy' 'puppies//p',
+       create [;
+         move self to location;
+         score = score + 1;
+         "A puppy is born!";
+       ],
+  has animate;
+
+
+[ Initialise; location = outside_house; lookmode = 2; ];
+
+Include "Grammar";
+
