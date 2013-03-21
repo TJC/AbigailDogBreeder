@@ -25,22 +25,22 @@ Verb   'mate' 'breed'
       print_ret "It is not hermaphroditic.";
     if (noun == player || second == player)
         print_ret "Please don't try and mate with anything yourself!";
-    if ( (noun == male_dog && second == male_dog)
-        || (noun == female_dog && second == female_dog)
+    if ( (noun ofclass MaleDog && second ofclass MaleDog)
+        || (noun ofclass FemaleDog && second ofclass FemaleDog)
     ) {
-        print_ret "The gay dogs mate, but produce no offspring.";
+        print_ret "The dogs mate, but produce no offspring.";
     }
     if (
-        (noun == male_dog && second == female_dog)
+        (noun ofclass MaleDog && second ofclass FemaleDog)
         ||
-        (second == male_dog && noun == female_dog)
+        (second ofclass MaleDog && noun ofclass FemaleDog)
     ) {
         print "The two dogs mate, and produce offspring.^";
         obj = Puppy.create();
         ! Use Puppy.destroy(x) to remove!
         return true;
     }
-    print_ret (The) noun, " is not able to mate.";
+    print_ret (The) noun, " is not able to mate with ", (the) second;
 ];
 
 Class  Room
@@ -101,27 +101,55 @@ Class DogType
         default: "";
       }
     ],
+    create [;
+      move self to inside_house;
+    ],
     has animate;
 
-DogType male_dog "male dog" inside_house
+Class MaleDog(99)
+  class DogType
   with description "You're pretty sure this is a male dog.",
-       name 'male' 'dog',
+       short_name "male dog",
+       plural "male dogs",
+       name 'male' 'dog' 'dogs//p',
   has ;
 
-DogType female_dog "female dog" inside_house
+Class FemaleDog(99)
+  class DogType
   with description "You're pretty sure this is a female dog, or bitch.",
-       name 'female' 'dog' 'bitch',
+       short_name "bitch",
+       plural "bitches",
+       name 'female' 'dog' 'dogs//p' 'bitch' 'bitches//p',
   has ;
+
+MaleDog male_dog inside_house;
+
+FemaleDog female_dog inside_house;
 
 Class Puppy(99)
   with description "This is a cute puppy!",
        short_name "puppy",
        plural "puppies",
        name 'puppy' 'puppies//p',
+       age 0,
        create [;
          move self to location;
-         score = score + 1;
+         score++;
          "A puppy is born!";
+       ],
+       each_turn [;
+         self.age++;
+         if (self.age > 3) {
+           print "A puppy has grown up to be an adult dog!";
+           score++;
+           Puppy.destroy(self);
+           if (random(10) < 5) {
+             MaleDog.create();
+           }
+           else {
+             FemaleDog.create();
+           }
+         }
        ],
   has animate;
 
