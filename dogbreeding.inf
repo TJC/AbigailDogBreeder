@@ -118,7 +118,7 @@ Object "carpet"
   found_in inside_house,
   has scenery;
 
-Class DogType(20) with
+Class DogType(99) with
     short_name [;
         print (address) self.&name-->0, " ",
               (address) self.&name-->1, " ",
